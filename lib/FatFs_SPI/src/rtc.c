@@ -14,7 +14,8 @@ specific language governing permissions and limitations under the License.
 #include <stdio.h>
 #include <time.h>
 //
-#include "hardware/rtc.h"
+
+//#include "hardware/rtc.h"
 #include "pico/stdio.h"
 #include "pico/stdlib.h"
 #include "pico/util/datetime.h"
@@ -29,12 +30,13 @@ static time_t epochtime;
 // Make an attempt to save a recent time stamp across reset:
 typedef struct rtc_save {
     uint32_t signature;
-    datetime_t datetime;
+    //datetime_t datetime;
     uint32_t checksum;  // last, not included in checksum
 } rtc_save_t;
 static rtc_save_t rtc_save __attribute__((section(".uninitialized_data")));
 
 static void update_epochtime() {
+#if 0
     bool rc = rtc_get_datetime(&rtc_save.datetime);
     if (rc) {
         rtc_save.signature = 0xBABEBABE;
@@ -56,6 +58,7 @@ static void update_epochtime() {
         rtc_save.datetime.dotw = timeinfo.tm_wday;
         // configASSERT(-1 != epochtime);
     }
+#endif
 }
 
 time_t time(time_t *pxTime) {
@@ -67,6 +70,7 @@ time_t time(time_t *pxTime) {
 }
 
 void time_init() {
+#if 0
     rtc_init();
     datetime_t t = {0, 0, 0, 0, 0, 0, 0};
     rtc_get_datetime(&t);
@@ -79,10 +83,12 @@ void time_init() {
             rtc_set_datetime(&rtc_save.datetime);
         }
     }
+#endif
 }
 
 // Called by FatFs:
 DWORD get_fattime(void) {
+#if 0
     datetime_t t = {0, 0, 0, 0, 0, 0, 0};
     bool rc = rtc_get_datetime(&t);
     if (!rc) return 0;
@@ -113,4 +119,7 @@ DWORD get_fattime(void) {
     uint8_t sd = t.sec / 2;
     fattime |= (0b00011111 & sd);
     return fattime;
+#else
+    return 0;
+#endif
 }
